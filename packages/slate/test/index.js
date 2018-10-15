@@ -110,6 +110,9 @@ describe('slate', () => {
 
     editor.setValue(output)
     const expected = editor.value.toJSON(opts)
+
+    // console.log(JSON.stringify(actual))
+
     assert.deepEqual(actual, expected)
   })
 
