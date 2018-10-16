@@ -25,10 +25,9 @@ export const output = (
   <value>
     <document>
       <paragraph>woone</paragraph>
-      <quote>two</quote>
-      <paragraph>
-        rd<cursor />
-      </paragraph>
+      <quote>
+        two<cursor />rd
+      </quote>
     </document>
   </value>
 )

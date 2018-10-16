@@ -691,15 +691,15 @@ Commands.insertFragmentAtRange = (change, range, fragment) => {
     if (firstBlock != lastBlock) {
       let insertFrom = findInsertionNode(fragment, document, startBlock.key)
 
-      const lonelyParent = insertFrom.getFurthest(
-        firstBlock.key,
-        p => p.nodes.size == 1
-      )
-      const lonelyChild = lonelyParent || firstBlock
+      const lonelyChild =
+        insertFrom.getFurthest(firstBlock.key, p => p.nodes.size == 1) ||
+        firstBlock // TODO: insertFrom should already be furthest?
+      const startIndex = parent.nodes.indexOf(startBlock)
       insertFrom = insertFrom.removeNode(lonelyChild.key)
 
-      insertFrom.nodes.reverse().forEach(node => {
-        change.insertBlockAtRange(range, node)
+      insertFrom.nodes.forEach((node, i) => {
+        const newIndex = startIndex + i + 1
+        change.insertNodeByKey(parent.key, newIndex, node)
       })
     }
 

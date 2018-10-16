@@ -108,6 +108,8 @@ describe('slate', () => {
     editor.change(fn)
     const actual = editor.value.toJSON(opts)
 
+    // console.log(JSON.stringify(actual))
+
     editor.setValue(output)
     const expected = editor.value.toJSON(opts)
 
