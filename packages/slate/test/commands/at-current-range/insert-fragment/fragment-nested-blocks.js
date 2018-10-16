@@ -26,9 +26,8 @@ export const input = (
 export const output = (
   <value>
     <document>
-      <paragraph>wo</paragraph>
+      <paragraph>woone</paragraph>
       <quote>
-        <quote>one</quote>
         <quote>two</quote>
       </quote>
       <paragraph>

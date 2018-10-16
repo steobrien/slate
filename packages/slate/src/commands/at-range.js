@@ -689,45 +689,17 @@ Commands.insertFragmentAtRange = (change, range, fragment) => {
     // If the first and last block aren't the same, we need to insert all of the
     // nodes after the fragment's first block at the index.
     if (firstBlock != lastBlock) {
-      let reference = fragment
+      let insertFrom = findInsertionNode(fragment, document, startBlock.key)
 
-      if (fragment.nodes.size === 1) {
-        let fragmentOuter = fragment.nodes.first()
-        let closestOuter = document.getClosest(
-          startBlock.key,
-          c => c.type === firstChild.type
-        )
-
-        if (closestOuter === parent) {
-          reference = firstChild
-        }
-
-        while (
-          fragmentOuter.nodes.size === 1 &&
-          closestOuter.nodes.size === 1
-        ) {
-          if (
-            fragmentOuter.nodes.first().type === closestOuter.nodes.first().type
-          ) {
-            reference = fragmentOuter.nodes.first()
-          }
-
-          fragmentOuter = fragmentOuter.nodes.first()
-          closestOuter = closestOuter.nodes.first()
-        }
-      }
-
-      const lonelyParent = reference.getFurthest(
+      const lonelyParent = insertFrom.getFurthest(
         firstBlock.key,
         p => p.nodes.size == 1
       )
       const lonelyChild = lonelyParent || firstBlock
-      const startIndex = parent.nodes.indexOf(startBlock)
-      reference = reference.removeNode(lonelyChild.key)
+      insertFrom = insertFrom.removeNode(lonelyChild.key)
 
-      reference.nodes.forEach((node, i) => {
-        const newIndex = startIndex + i + 1
-        change.insertNodeByKey(parent.key, newIndex, node)
+      insertFrom.nodes.reverse().forEach(node => {
+        change.insertBlockAtRange(range, node)
       })
     }
 
@@ -1378,5 +1350,31 @@ Commands.wrapTextAtRange = (change, range, prefix, suffix = prefix) => {
  *
  * @type {Object}
  */
+
+const findInsertionNode = (fragment, document, startKey) => {
+  const hasSingleNode = object => object.nodes.size === 1
+  const firstNode = object => object.nodes.first()
+  let reference = fragment
+
+  if (hasSingleNode(fragment)) {
+    let fragmentOuter = firstNode(fragment)
+
+    const matchesType = node => node.type === fragmentOuter.type
+    let closestOuter = document.getClosest(startKey, matchesType)
+
+    if (closestOuter === document.getParent(startKey)) reference = fragmentOuter
+
+    while (hasSingleNode(fragmentOuter) && hasSingleNode(closestOuter)) {
+      if (firstNode(fragmentOuter).type === firstNode(closestOuter).type) {
+        reference = firstNode(fragmentOuter)
+      }
+
+      fragmentOuter = firstNode(fragmentOuter)
+      closestOuter = firstNode(closestOuter)
+    }
+  }
+
+  return reference
+}
 
 export default Commands
