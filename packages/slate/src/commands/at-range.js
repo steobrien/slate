@@ -663,12 +663,32 @@ Commands.insertFragmentAtRange = (change, range, fragment) => {
     const parent = document.getParent(startBlock.key)
     const index = parent.nodes.indexOf(startBlock)
     const blocks = fragment.getBlocks()
+    const firstChild = fragment.nodes.first()
+    const lastChild = fragment.nodes.last()
     const firstBlock = blocks.first()
     const lastBlock = blocks.last()
 
     // If the fragment only contains a void block, use `insertBlock` instead.
     if (firstBlock === lastBlock && change.isVoid(firstBlock)) {
       change.insertBlockAtRange(range, firstBlock)
+      return
+    }
+
+    // If the fragment has a single child whose type matches the parent, insert
+    // its children at the range
+    if (firstChild === lastChild && firstChild.type === parent.type) {
+      firstChild.nodes.reverse().forEach(node => {
+        change.insertBlockAtRange(range, node)
+      })
+      return
+    }
+
+    // If the fragment starts or ends with single nested block, (e.g., table),
+    // do not merge this fragment with existing blocks.
+    if (firstChild.hasBlockChildren() || lastChild.hasBlockChildren()) {
+      fragment.nodes.reverse().forEach(node => {
+        change.insertBlockAtRange(range, node)
+      })
       return
     }
 

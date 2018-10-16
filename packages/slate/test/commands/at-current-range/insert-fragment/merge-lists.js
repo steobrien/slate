@@ -6,7 +6,8 @@ export default function(change) {
   change.insertFragment(
     <document>
       <list>
-        <item>added</item>
+        <item>3</item>
+        <item>4</item>
       </list>
     </document>
   )
@@ -16,8 +17,9 @@ export const input = (
   <value>
     <document>
       <list>
+        <item>1</item>
         <item>
-          initial<cursor />
+          2<cursor />
         </item>
       </list>
     </document>
@@ -28,8 +30,11 @@ export const output = (
   <value>
     <document>
       <list>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
         <item>
-          initialadded<cursor />
+          4<cursor />
         </item>
       </list>
     </document>
