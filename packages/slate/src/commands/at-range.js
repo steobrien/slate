@@ -667,6 +667,7 @@ Commands.insertFragmentAtRange = (change, range, fragment) => {
     const lastChild = fragment.nodes.last()
     const firstBlock = blocks.first()
     const lastBlock = blocks.last()
+    const insertFrom = findInsertionNode(fragment, document, startBlock.key)
 
     // If the fragment only contains a void block, use `insertBlock` instead.
     if (firstBlock === lastBlock && change.isVoid(firstBlock)) {
@@ -677,7 +678,7 @@ Commands.insertFragmentAtRange = (change, range, fragment) => {
     // If the fragment starts or ends with single nested block, (e.g., table),
     // do not merge this fragment with existing blocks.
     if (
-      firstChild !== lastChild &&
+      insertFrom === fragment &&
       (firstChild.hasBlockChildren() || lastChild.hasBlockChildren())
     ) {
       fragment.nodes.reverse().forEach(node => {
@@ -689,15 +690,13 @@ Commands.insertFragmentAtRange = (change, range, fragment) => {
     // If the first and last block aren't the same, we need to insert all of the
     // nodes after the fragment's first block at the index.
     if (firstBlock != lastBlock) {
-      let insertFrom = findInsertionNode(fragment, document, startBlock.key)
-
       const lonelyChild =
         insertFrom.getFurthest(firstBlock.key, p => p.nodes.size == 1) ||
         firstBlock // TODO: insertFrom should already be furthest?
       const startIndex = parent.nodes.indexOf(startBlock)
-      insertFrom = insertFrom.removeNode(lonelyChild.key)
+      const excludingLonelyChild = insertFrom.removeNode(lonelyChild.key)
 
-      insertFrom.nodes.forEach((node, i) => {
+      excludingLonelyChild.nodes.forEach((node, i) => {
         const newIndex = startIndex + i + 1
         change.insertNodeByKey(parent.key, newIndex, node)
       })
@@ -1352,8 +1351,8 @@ Commands.wrapTextAtRange = (change, range, prefix, suffix = prefix) => {
  */
 
 const findInsertionNode = (fragment, document, startKey) => {
-  const hasSingleNode = object => object.nodes.size === 1
-  const firstNode = object => object.nodes.first()
+  const hasSingleNode = object => object && object.nodes.size === 1
+  const firstNode = object => object && object.nodes.first()
   let reference = fragment
 
   if (hasSingleNode(fragment)) {
