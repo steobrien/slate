@@ -692,7 +692,8 @@ Commands.insertFragmentAtRange = (change, range, fragment) => {
     if (firstBlock != lastBlock) {
       const lonelyChild =
         insertFrom.getFurthest(firstBlock.key, p => p.nodes.size == 1) ||
-        firstBlock // TODO: insertFrom should already be furthest?
+        firstBlock
+
       const startIndex = parent.nodes.indexOf(startBlock)
       const excludingLonelyChild = insertFrom.removeNode(lonelyChild.key)
 
