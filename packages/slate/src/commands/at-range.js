@@ -667,7 +667,7 @@ Commands.insertFragmentAtRange = (change, range, fragment) => {
     const lastChild = fragment.nodes.last()
     const firstBlock = blocks.first()
     const lastBlock = blocks.last()
-    const insertFrom = findInsertionNode(fragment, document, startBlock.key)
+    const insertionNode = findInsertionNode(fragment, document, startBlock.key)
 
     // If the fragment only contains a void block, use `insertBlock` instead.
     if (firstBlock === lastBlock && change.isVoid(firstBlock)) {
@@ -675,10 +675,10 @@ Commands.insertFragmentAtRange = (change, range, fragment) => {
       return
     }
 
-    // If the fragment starts or ends with single nested block, (e.g., table),
-    // do not merge this fragment with existing blocks.
+    // If inserting the entire fragment and it starts or ends with a single
+    // nested block, e.g. a table, we do not merge it with existing blocks.
     if (
-      insertFrom === fragment &&
+      insertionNode === fragment &&
       (firstChild.hasBlockChildren() || lastChild.hasBlockChildren())
     ) {
       fragment.nodes.reverse().forEach(node => {
@@ -688,14 +688,14 @@ Commands.insertFragmentAtRange = (change, range, fragment) => {
     }
 
     // If the first and last block aren't the same, we need to insert all of the
-    // nodes after the fragment's first block at the index.
+    // nodes after the insertion node's first block at the index.
     if (firstBlock != lastBlock) {
       const lonelyChild =
-        insertFrom.getFurthest(firstBlock.key, p => p.nodes.size == 1) ||
+        insertionNode.getFurthest(firstBlock.key, p => p.nodes.size == 1) ||
         firstBlock
 
       const startIndex = parent.nodes.indexOf(startBlock)
-      const excludingLonelyChild = insertFrom.removeNode(lonelyChild.key)
+      const excludingLonelyChild = insertionNode.removeNode(lonelyChild.key)
 
       excludingLonelyChild.nodes.forEach((node, i) => {
         const newIndex = startIndex + i + 1
@@ -750,6 +750,30 @@ Commands.insertFragmentAtRange = (change, range, fragment) => {
       })
     }
   })
+}
+
+const findInsertionNode = (fragment, document, startKey) => {
+  const hasSingleNode = object => object && object.nodes.size === 1
+  const firstNode = object => object && object.nodes.first()
+  let node = fragment
+
+  if (hasSingleNode(fragment)) {
+    let fragmentInner = firstNode(fragment)
+
+    const matches = documentNode => documentNode.type === fragmentInner.type
+    let documentInner = document.getClosest(startKey, matches)
+
+    if (documentInner === document.getParent(startKey)) node = fragmentInner
+
+    while (hasSingleNode(fragmentInner) && hasSingleNode(documentInner)) {
+      fragmentInner = firstNode(fragmentInner)
+      documentInner = firstNode(documentInner)
+
+      if (fragmentInner.type === documentInner.type) node = fragmentInner
+    }
+  }
+
+  return node
 }
 
 /**
@@ -1350,31 +1374,5 @@ Commands.wrapTextAtRange = (change, range, prefix, suffix = prefix) => {
  *
  * @type {Object}
  */
-
-const findInsertionNode = (fragment, document, startKey) => {
-  const hasSingleNode = object => object && object.nodes.size === 1
-  const firstNode = object => object && object.nodes.first()
-  let reference = fragment
-
-  if (hasSingleNode(fragment)) {
-    let fragmentOuter = firstNode(fragment)
-
-    const matchesType = node => node.type === fragmentOuter.type
-    let closestOuter = document.getClosest(startKey, matchesType)
-
-    if (closestOuter === document.getParent(startKey)) reference = fragmentOuter
-
-    while (hasSingleNode(fragmentOuter) && hasSingleNode(closestOuter)) {
-      if (firstNode(fragmentOuter).type === firstNode(closestOuter).type) {
-        reference = firstNode(fragmentOuter)
-      }
-
-      fragmentOuter = firstNode(fragmentOuter)
-      closestOuter = firstNode(closestOuter)
-    }
-  }
-
-  return reference
-}
 
 export default Commands
