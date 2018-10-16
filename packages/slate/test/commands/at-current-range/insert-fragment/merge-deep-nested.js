@@ -5,12 +5,12 @@ import h from '../../../helpers/h'
 export default function(change) {
   change.insertFragment(
     <document>
-      <paragraph>
-        <paragraph>
+      <code>
+        <quote>
           <paragraph>2</paragraph>
           <paragraph>3</paragraph>
-        </paragraph>
-      </paragraph>
+        </quote>
+      </code>
     </document>
   )
 }
@@ -19,11 +19,13 @@ export const input = (
   <value>
     <document>
       <paragraph>
-        <paragraph>
-          <paragraph>
-            1<cursor />
-          </paragraph>
-        </paragraph>
+        <code>
+          <quote>
+            <paragraph>
+              1<cursor />
+            </paragraph>
+          </quote>
+        </code>
       </paragraph>
     </document>
   </value>
@@ -33,12 +35,14 @@ export const output = (
   <value>
     <document>
       <paragraph>
-        <paragraph>
-          <paragraph>12</paragraph>
-          <paragraph>
-            3<cursor />
-          </paragraph>
-        </paragraph>
+        <code>
+          <quote>
+            <paragraph>12</paragraph>
+            <paragraph>
+              3<cursor />
+            </paragraph>
+          </quote>
+        </code>
       </paragraph>
     </document>
   </value>

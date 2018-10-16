@@ -690,9 +690,11 @@ Commands.insertFragmentAtRange = (change, range, fragment) => {
     // If the first and last block aren't the same, we need to insert all of the
     // nodes after the insertion node's first block at the index.
     if (firstBlock != lastBlock) {
-      const lonelyChild =
-        insertionNode.getFurthest(firstBlock.key, p => p.nodes.size == 1) ||
-        firstBlock
+      const lonelyParent = insertionNode.getFurthest(
+        firstBlock.key,
+        p => p.nodes.size == 1
+      )
+      const lonelyChild = lonelyParent || firstBlock
 
       const startIndex = parent.nodes.indexOf(startBlock)
       const excludingLonelyChild = insertionNode.removeNode(lonelyChild.key)
