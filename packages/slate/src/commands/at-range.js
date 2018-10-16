@@ -761,7 +761,7 @@ const findInsertionNode = (fragment, document, startKey) => {
     let fragmentInner = firstNode(fragment)
 
     const matches = documentNode => documentNode.type === fragmentInner.type
-    let documentInner = document.getClosest(startKey, matches)
+    let documentInner = document.getFurthest(startKey, matches)
 
     if (documentInner === document.getParent(startKey)) node = fragmentInner
 
