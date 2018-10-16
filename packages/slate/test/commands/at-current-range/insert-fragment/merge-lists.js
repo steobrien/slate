@@ -31,8 +31,7 @@ export const output = (
     <document>
       <list>
         <item>1</item>
-        <item>2</item>
-        <item>3</item>
+        <item>23</item>
         <item>
           4<cursor />
         </item>
